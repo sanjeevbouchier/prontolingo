@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useActionState } from 'react';
+import React, { useState, useEffect, useCallback, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { handleGenerateVocabulary, handleRegenerateVocabulary } from '@/app/actions';
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { TextToSpeechButton } from '@/components/text-to-speech-button';
 import { Quiz } from '@/components/quiz';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BookOpen, Languages, Loader2, RefreshCw } from 'lucide-react';
 
 type VocabularyItem = GenerateVocabularyOutput['vocabulary'][0];
@@ -82,7 +83,8 @@ export function LinguascapeApp() {
     setIsRegenerating(false);
 
     if (result.error) {
-        toast({ title: "Error", description: result.error, variant: "destructive" });
+        const errorMessage = typeof result.error === 'string' ? result.error : 'Failed to regenerate vocabulary.';
+        toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } else if (result.data) {
         setVocabulary(prev => [...prev, ...result.data.vocabulary]);
         regenerateQuiz();
@@ -111,15 +113,26 @@ export function LinguascapeApp() {
                 placeholder="Enter a situation..." 
                 required 
                 className="flex-grow"
+                value={situation}
                 onChange={(e) => setSituation(e.target.value)}
             />
-            <Input 
-                name="language" 
-                placeholder="Enter a language..." 
-                required 
-                className="md:max-w-xs"
-                onChange={(e) => setLanguage(e.target.value)}
-            />
+            <Select name="language" required value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-full md:max-w-xs">
+                    <SelectValue placeholder="Select a language" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="English">English</SelectItem>
+                    <SelectItem value="Spanish">Spanish</SelectItem>
+                    <SelectItem value="French">French</SelectItem>
+                    <SelectItem value="German">German</SelectItem>
+                    <SelectItem value="Italian">Italian</SelectItem>
+                    <SelectItem value="Japanese">Japanese</SelectItem>
+                    <SelectItem value="Mandarin Chinese">Mandarin Chinese</SelectItem>
+                    <SelectItem value="Russian">Russian</SelectItem>
+                    <SelectItem value="Arabic">Arabic</SelectItem>
+                    <SelectItem value="Portuguese">Portuguese</SelectItem>
+                </SelectContent>
+            </Select>
             <SubmitButton />
           </form>
         </CardContent>
