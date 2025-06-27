@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { handleGenerateVocabulary, handleRegenerateVocabulary } from '@/app/actions';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
+import { handleGenerateVocabulary, handleRegenerateVocabulary, handleGenerateQuiz } from '@/app/actions';
 import { useToast } from "@/hooks/use-toast";
-import { generateQuiz, QuizQuestion } from '@/lib/quiz-generator';
-import type { GenerateVocabularyOutput } from '@/ai/flows/generate-vocabulary';
+import type { VocabularyItem, QuizQuestion } from '@/ai/schemas';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,8 +15,6 @@ import { Quiz } from '@/components/quiz';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, Languages, Loader2, RefreshCw } from 'lucide-react';
-
-type VocabularyItem = GenerateVocabularyOutput['vocabulary'][0];
 
 const initialState = {
   data: null,
@@ -35,7 +32,7 @@ function SubmitButton() {
 }
 
 export function LinguascapeApp() {
-  const [state, formAction] = useActionState(handleGenerateVocabulary, initialState);
+  const [state, formAction] = useFormState(handleGenerateVocabulary, initialState);
   const { toast } = useToast();
 
   const [vocabulary, setVocabulary] = useState<VocabularyItem[]>([]);
@@ -44,7 +41,26 @@ export function LinguascapeApp() {
   const [language, setLanguage] = useState('');
   const [quizKey, setQuizKey] = useState(0); 
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
 
+  const getQuiz = useCallback(async (currentVocabulary: VocabularyItem[]) => {
+      if (currentVocabulary.length < 4) {
+        setQuizQuestions([]);
+        return;
+      }
+      setIsGeneratingQuiz(true);
+      const result = await handleGenerateQuiz({ vocabulary: currentVocabulary, numQuestions: 6 });
+      setIsGeneratingQuiz(false);
+
+      if (result.error) {
+        const errorMessage = typeof result.error === 'string' ? result.error : 'Failed to generate quiz.';
+        toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
+      } else if (result.data) {
+        setQuizQuestions(result.data);
+        setQuizKey((prev) => prev + 1);
+      }
+  }, [toast]);
+  
   useEffect(() => {
     if (state.error) {
       const errorMessage = typeof state.error === 'string' ? state.error : 'An unexpected error occurred.';
@@ -56,19 +72,15 @@ export function LinguascapeApp() {
     }
     if (state.data) {
       setVocabulary(state.data.vocabulary);
-      const newQuestions = generateQuiz(state.data.vocabulary);
-      setQuizQuestions(newQuestions);
-      setQuizKey(prev => prev + 1);
+      getQuiz(state.data.vocabulary);
     }
-  }, [state, toast]);
+  }, [state, toast, getQuiz]);
 
   const regenerateQuiz = useCallback(() => {
     if (vocabulary.length > 0) {
-      const newQuestions = generateQuiz(vocabulary);
-      setQuizQuestions(newQuestions);
-      setQuizKey(prev => prev + 1);
+      getQuiz(vocabulary);
     }
-  }, [vocabulary]);
+  }, [vocabulary, getQuiz]);
   
   const handleRegenerate = async () => {
     if (!situation || !language) {
@@ -87,8 +99,9 @@ export function LinguascapeApp() {
         const errorMessage = typeof result.error === 'string' ? result.error : 'Failed to regenerate vocabulary.';
         toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } else if (result.data) {
-        setVocabulary(prev => [...prev, ...result.data.vocabulary]);
-        regenerateQuiz();
+        const newVocabulary = [...vocabulary, ...result.data.vocabulary];
+        setVocabulary(newVocabulary);
+        getQuiz(newVocabulary);
     }
   };
   
@@ -146,13 +159,19 @@ export function LinguascapeApp() {
         <div className="space-y-8">
           <Separator />
           <div>
-            <h2 className="text-3xl font-bold font-headline mb-4 text-center">Your Vocabulary List</h2>
-            <Tabs defaultValue="vocabulary" className="w-full">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-3xl font-bold font-headline">Your Vocabulary List</h2>
+                 <Button onClick={handleRegenerate} disabled={isRegenerating || isGeneratingQuiz}>
+                     {isRegenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                     Get More Vocabulary
+                 </Button>
+            </div>
+            <Tabs defaultValue="words" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="vocabulary">Vocabulary ({words.length})</TabsTrigger>
+                <TabsTrigger value="words">Words ({words.length})</TabsTrigger>
                 <TabsTrigger value="phrases">Phrases ({phrases.length})</TabsTrigger>
               </TabsList>
-              <TabsContent value="vocabulary" className="mt-4">
+              <TabsContent value="words" className="mt-4">
                 <div className="grid gap-4 md:grid-cols-2">
                     {words.map((item, index) => (
                         <Card key={`word-${index}`}>
@@ -201,16 +220,18 @@ export function LinguascapeApp() {
                 </div>
               </TabsContent>
             </Tabs>
-             <div className="text-center mt-6">
-                 <Button onClick={handleRegenerate} disabled={isRegenerating}>
-                     {isRegenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                     Get More Vocabulary
-                 </Button>
-             </div>
           </div>
 
           <Separator />
-          <Quiz key={quizKey} questions={quizQuestions} onRegenerate={regenerateQuiz} />
+            {isGeneratingQuiz && (
+                <div className="flex items-center justify-center space-x-2 py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <p className="text-muted-foreground">Generating your quiz...</p>
+                </div>
+            )}
+            {!isGeneratingQuiz && quizQuestions.length > 0 && (
+                <Quiz key={quizKey} questions={quizQuestions} onRegenerate={regenerateQuiz} />
+            )}
         </div>
       )}
     </div>

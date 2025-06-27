@@ -2,6 +2,7 @@
 
 import { generateVocabulary, GenerateVocabularyInput, GenerateVocabularyOutput } from '@/ai/flows/generate-vocabulary';
 import { regenerateVocabulary, RegenerateVocabularyInput, RegenerateVocabularyOutput } from '@/ai/flows/regenerate-vocabulary';
+import { generateQuiz, GenerateQuizInput, GenerateQuizOutput, QuizQuestion } from '@/ai/flows/generate-quiz';
 import { z } from 'zod';
 
 const situationSchema = z.object({
@@ -49,5 +50,19 @@ export async function handleRegenerateVocabulary(input: RegenerateVocabularyInpu
     } catch (error) {
         console.error(error);
         return { error: 'Failed to regenerate vocabulary. Please try again.' };
+    }
+}
+
+type QuizState = {
+    data?: QuizQuestion[];
+    error?: any;
+}
+export async function handleGenerateQuiz(input: GenerateQuizInput): Promise<QuizState> {
+    try {
+        const result: GenerateQuizOutput = await generateQuiz(input);
+        return { data: result.questions };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Failed to generate quiz. Please try again.' };
     }
 }

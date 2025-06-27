@@ -9,27 +9,14 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {
+  GenerateVocabularyInputSchema,
+  type GenerateVocabularyInput,
+  GenerateVocabularyOutputSchema,
+  type GenerateVocabularyOutput
+} from '../schemas';
 
-const GenerateVocabularyInputSchema = z.object({
-  situation: z.string().describe("A real-world situation (e.g., 'ordering coffee in Paris')."),
-  targetLanguage: z.string().describe("The target language for vocabulary generation (e.g., 'French')."),
-  numResults: z.number().default(5).describe('The number of vocabulary words/phrases to generate.'),
-});
-export type GenerateVocabularyInput = z.infer<typeof GenerateVocabularyInputSchema>;
-
-const GenerateVocabularyOutputSchema = z.object({
-  vocabulary: z.array(
-    z.object({
-      wordPhrase: z.string().describe('The vocabulary word or phrase in the target language.'),
-      translation: z.string().describe('The English translation of the word or phrase.'),
-      exampleSentence: z.string().describe('An example sentence using the word or phrase.'),
-      exampleSentenceTranslation: z.string().describe('The English translation of the example sentence.'),
-      type: z.enum(['word', 'phrase']).describe("Whether the item is a 'word' or a 'phrase'."),
-    })
-  ).describe('A list of vocabulary words/phrases, their translations, and example sentences.'),
-});
-export type GenerateVocabularyOutput = z.infer<typeof GenerateVocabularyOutputSchema>;
+export type { GenerateVocabularyInput, GenerateVocabularyOutput };
 
 export async function generateVocabulary(input: GenerateVocabularyInput): Promise<GenerateVocabularyOutput> {
   return generateVocabularyFlow(input);

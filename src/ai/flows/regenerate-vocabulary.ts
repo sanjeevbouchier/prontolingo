@@ -9,27 +9,14 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {
+    RegenerateVocabularyInputSchema,
+    type RegenerateVocabularyInput,
+    RegenerateVocabularyOutputSchema,
+    type RegenerateVocabularyOutput
+} from '../schemas';
 
-const RegenerateVocabularyInputSchema = z.object({
-  context: z.string().describe('The context or situation for which to generate vocabulary.'),
-  language: z.string().describe('The target language for the vocabulary.'),
-  previousVocabulary: z.array(z.string()).optional().describe('The previous list of vocabulary words, if any.')
-});
-export type RegenerateVocabularyInput = z.infer<typeof RegenerateVocabularyInputSchema>;
-
-const RegenerateVocabularyOutputSchema = z.object({
-  vocabulary: z.array(
-    z.object({
-      wordPhrase: z.string().describe('The vocabulary word or phrase in the target language.'),
-      translation: z.string().describe('The English translation of the word or phrase.'),
-      exampleSentence: z.string().describe('An example sentence using the word or phrase.'),
-      exampleSentenceTranslation: z.string().describe('The English translation of the example sentence.'),
-      type: z.enum(['word', 'phrase']).describe("Whether the item is a 'word' or a 'phrase'."),
-    })
-  ).describe('A list of new vocabulary words/phrases, their translations, and example sentences, not including the previous ones.'),
-});
-export type RegenerateVocabularyOutput = z.infer<typeof RegenerateVocabularyOutputSchema>;
+export type { RegenerateVocabularyInput, RegenerateVocabularyOutput };
 
 export async function regenerateVocabulary(input: RegenerateVocabularyInput): Promise<RegenerateVocabularyOutput> {
   return regenerateVocabularyFlow(input);

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
-import type { QuizQuestion } from '@/lib/quiz-generator';
+import type { QuizQuestion } from '@/ai/flows/generate-quiz';
 
 interface QuizProps {
   questions: QuizQuestion[];
