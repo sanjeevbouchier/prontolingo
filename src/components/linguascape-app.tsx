@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import React, { useState, useEffect, useMemo, useCallback, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { handleGenerateVocabulary, handleRegenerateVocabulary } from '@/app/actions';
 import { useToast } from "@/hooks/use-toast";
 import { generateQuiz, QuizQuestion } from '@/lib/quiz-generator';
@@ -33,7 +33,7 @@ function SubmitButton() {
 }
 
 export function LinguascapeApp() {
-  const [state, formAction] = useFormState(handleGenerateVocabulary, initialState);
+  const [state, formAction] = useActionState(handleGenerateVocabulary, initialState);
   const { toast } = useToast();
 
   const [vocabulary, setVocabulary] = useState<VocabularyItem[]>([]);
