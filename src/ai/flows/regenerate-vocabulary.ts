@@ -19,8 +19,15 @@ const RegenerateVocabularyInputSchema = z.object({
 export type RegenerateVocabularyInput = z.infer<typeof RegenerateVocabularyInputSchema>;
 
 const RegenerateVocabularyOutputSchema = z.object({
-  vocabulary: z.array(z.string()).describe('A list of relevant vocabulary words and phrases in the target language.'),
-  exampleSentences: z.array(z.string()).describe('Example sentences or dialogues for each vocabulary word or phrase.'),
+  vocabulary: z.array(
+    z.object({
+      wordPhrase: z.string().describe('The vocabulary word or phrase in the target language.'),
+      translation: z.string().describe('The English translation of the word or phrase.'),
+      exampleSentence: z.string().describe('An example sentence using the word or phrase.'),
+      exampleSentenceTranslation: z.string().describe('The English translation of the example sentence.'),
+      type: z.enum(['word', 'phrase']).describe("Whether the item is a 'word' or a 'phrase'."),
+    })
+  ).describe('A list of new vocabulary words/phrases, their translations, and example sentences, not including the previous ones.'),
 });
 export type RegenerateVocabularyOutput = z.infer<typeof RegenerateVocabularyOutputSchema>;
 
@@ -32,17 +39,34 @@ const prompt = ai.definePrompt({
   name: 'regenerateVocabularyPrompt',
   input: {schema: RegenerateVocabularyInputSchema},
   output: {schema: RegenerateVocabularyOutputSchema},
-  prompt: `You are a language learning assistant. Your task is to generate a list of relevant vocabulary words and phrases in the target language, tailored to the real-world situation the user has entered.  Also supply example sentences or dialogues for each word and phrase.
+  prompt: `You are a language learning assistant. Your task is to generate a new list of relevant vocabulary words and phrases in the target language, tailored to the real-world situation the user has entered.
 
 Context: {{{context}}}
 Language: {{{language}}}
 
+Generate 5 new vocabulary items. For each item, provide:
+1.  The word or phrase in the target language.
+2.  The English translation of the word or phrase.
+3.  An example sentence in the target language.
+4.  The English translation of the example sentence.
+5.  The type of item: either 'word' for single words, or 'phrase' for multi-word expressions.
+
 {{#if previousVocabulary}}
-Here is the previous vocabulary:
-{{#each previousVocabulary}}- {{{this}}}}
+Here is the previous vocabulary you have already provided:
+{{#each previousVocabulary}}- {{{this}}}
 {{/each}}
-Avoid repeating these words.
+Do not generate any of these words or phrases again. Generate completely new and distinct items.
 {{/if}}
+
+Format your response as a JSON object with a single key called "vocabulary" whose value is an array of objects. Each object in the array has five keys:
+
+*   "wordPhrase": The vocabulary word or phrase in the target language.
+*   "translation": The English translation.
+*   "exampleSentence": An example sentence.
+*   "exampleSentenceTranslation": The English translation of the example sentence.
+*   "type": "word" or "phrase".
+
+Make sure that the response only contains the JSON, with no other preamble or explanatory text.
 `,
 });
 

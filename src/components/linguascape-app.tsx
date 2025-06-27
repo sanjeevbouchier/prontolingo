@@ -7,13 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import { generateQuiz, QuizQuestion } from '@/lib/quiz-generator';
 import type { GenerateVocabularyOutput } from '@/ai/flows/generate-vocabulary';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { TextToSpeechButton } from '@/components/text-to-speech-button';
 import { Quiz } from '@/components/quiz';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, Languages, Loader2, RefreshCw } from 'lucide-react';
 
 type VocabularyItem = GenerateVocabularyOutput['vocabulary'][0];
@@ -90,6 +91,9 @@ export function LinguascapeApp() {
         regenerateQuiz();
     }
   };
+  
+  const words = vocabulary.filter(item => item.type === 'word');
+  const phrases = vocabulary.filter(item => item.type === 'phrase');
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -142,21 +146,61 @@ export function LinguascapeApp() {
         <div className="space-y-8">
           <Separator />
           <div>
-            <h2 className="text-3xl font-bold font-headline mb-4">Your Vocabulary List</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-                {vocabulary.map((item, index) => (
-                    <Card key={index}>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-lg">{item.wordPhrase}</CardTitle>
-                            <TextToSpeechButton text={item.wordPhrase} language={language} />
+            <h2 className="text-3xl font-bold font-headline mb-4 text-center">Your Vocabulary List</h2>
+            <Tabs defaultValue="vocabulary" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="vocabulary">Vocabulary ({words.length})</TabsTrigger>
+                <TabsTrigger value="phrases">Phrases ({phrases.length})</TabsTrigger>
+              </TabsList>
+              <TabsContent value="vocabulary" className="mt-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                    {words.map((item, index) => (
+                        <Card key={`word-${index}`}>
+                          <CardHeader className="pb-4">
+                              <div className="flex items-start justify-between">
+                                  <div>
+                                      <CardTitle className="text-lg">{item.wordPhrase}</CardTitle>
+                                      <p className="text-sm text-muted-foreground">{item.translation}</p>
+                                  </div>
+                                  <TextToSpeechButton text={item.wordPhrase} language={language} />
+                              </div>
+                          </CardHeader>
+                          <CardContent className="flex items-start justify-between">
+                              <div className="space-y-1 italic text-sm">
+                                  <p>"{item.exampleSentence}"</p>
+                                  <p className="text-muted-foreground">"{item.exampleSentenceTranslation}"</p>
+                              </div>
+                               <TextToSpeechButton text={item.exampleSentence} language={language} />
+                          </CardContent>
+                        </Card>
+                    ))}
+                </div>
+              </TabsContent>
+              <TabsContent value="phrases" className="mt-4">
+                <div className="grid gap-4 md:grid-cols-1">
+                    {phrases.map((item, index) => (
+                      <Card key={`phrase-${index}`}>
+                        <CardHeader className="pb-4">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <CardTitle className="text-lg">{item.wordPhrase}</CardTitle>
+                                    <p className="text-sm text-muted-foreground">{item.translation}</p>
+                                </div>
+                                <TextToSpeechButton text={item.wordPhrase} language={language} />
+                            </div>
                         </CardHeader>
-                        <CardContent className="flex items-center justify-between">
-                            <p className="text-muted-foreground italic">"{item.exampleSentence}"</p>
+                        <CardContent className="flex items-start justify-between">
+                            <div className="space-y-1 italic text-sm">
+                                <p>"{item.exampleSentence}"</p>
+                                <p className="text-muted-foreground">"{item.exampleSentenceTranslation}"</p>
+                            </div>
                              <TextToSpeechButton text={item.exampleSentence} language={language} />
                         </CardContent>
-                    </Card>
-                ))}
-            </div>
+                      </Card>
+                    ))}
+                </div>
+              </TabsContent>
+            </Tabs>
              <div className="text-center mt-6">
                  <Button onClick={handleRegenerate} disabled={isRegenerating}>
                      {isRegenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}

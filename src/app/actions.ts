@@ -1,7 +1,7 @@
 'use server';
 
 import { generateVocabulary, GenerateVocabularyInput, GenerateVocabularyOutput } from '@/ai/flows/generate-vocabulary';
-import { regenerateVocabulary, RegenerateVocabularyInput } from '@/ai/flows/regenerate-vocabulary';
+import { regenerateVocabulary, RegenerateVocabularyInput, RegenerateVocabularyOutput } from '@/ai/flows/regenerate-vocabulary';
 import { z } from 'zod';
 
 const situationSchema = z.object({
@@ -44,14 +44,8 @@ export async function handleGenerateVocabulary(prevState: FormState, formData: F
 
 export async function handleRegenerateVocabulary(input: RegenerateVocabularyInput): Promise<FormState> {
     try {
-        const result = await regenerateVocabulary(input);
-        const mappedResult: GenerateVocabularyOutput = {
-            vocabulary: result.vocabulary.map((word, index) => ({
-                wordPhrase: word,
-                exampleSentence: result.exampleSentences[index] || "No example provided."
-            }))
-        };
-        return { data: mappedResult };
+        const result: RegenerateVocabularyOutput = await regenerateVocabulary(input);
+        return { data: result };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to regenerate vocabulary. Please try again.' };
