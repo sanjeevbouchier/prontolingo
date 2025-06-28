@@ -16,7 +16,7 @@ type Session = {
   lastAccessed: number;
 };
 
-export function LinguascapeApp() {
+export function ProntolingoApp() {
   const router = useRouter();
   const [situation, setSituation] = useState('');
   const [language, setLanguage] = useState('');
@@ -25,7 +25,7 @@ export function LinguascapeApp() {
 
   useEffect(() => {
     try {
-      const storedSessions = localStorage.getItem('linguascape-sessions');
+      const storedSessions = localStorage.getItem('prontolingo-sessions');
       if (storedSessions) {
         setPreviousSessions(JSON.parse(storedSessions));
       }
@@ -47,7 +47,7 @@ export function LinguascapeApp() {
 
     setPreviousSessions(updatedSessions);
     try {
-        localStorage.setItem('linguascape-sessions', JSON.stringify(updatedSessions));
+        localStorage.setItem('prontolingo-sessions', JSON.stringify(updatedSessions));
     } catch (error) {
         console.error("Failed to save sessions to localStorage", error);
     }
@@ -83,7 +83,7 @@ export function LinguascapeApp() {
   return (
     <div className="container mx-auto p-4 md:p-8 flex flex-col items-center">
       <header className="text-center my-8 md:my-12">
-        <h1 className="text-5xl font-bold font-headline mb-2">Linguascape</h1>
+        <h1 className="text-5xl font-bold font-headline mb-2">Prontolingo</h1>
         <p className="text-xl text-muted-foreground">Your AI-powered guide to real-world conversations.</p>
       </header>
 

@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Linguascape',
+  title: 'Prontolingo',
   description: 'AI-Powered Vocabulary Generation',
 };
 
