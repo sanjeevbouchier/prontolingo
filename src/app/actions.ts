@@ -3,39 +3,23 @@
 import { generateVocabulary, GenerateVocabularyInput, GenerateVocabularyOutput } from '@/ai/flows/generate-vocabulary';
 import { regenerateVocabulary, RegenerateVocabularyInput, RegenerateVocabularyOutput } from '@/ai/flows/regenerate-vocabulary';
 import { generateQuiz, GenerateQuizInput, GenerateQuizOutput, QuizQuestion } from '@/ai/flows/generate-quiz';
-import { z } from 'zod';
+import { generateTitle, GenerateTitleInput, GenerateTitleOutput } from '@/ai/flows/generate-title';
+import { GenerateVocabularyInputSchema } from '@/ai/schemas';
 
-const situationSchema = z.object({
-  situation: z.string().min(3, { message: 'Situation must be at least 3 characters long.' }),
-  language: z.string().min(2, { message: 'Language must be at least 2 characters long.' }),
-});
-
-type FormState = {
-    data?: GenerateVocabularyOutput | null;
+type VocabularyState = {
+    data?: GenerateVocabularyOutput | RegenerateVocabularyOutput | null;
     error?: any;
 }
 
-export async function handleGenerateVocabulary(prevState: FormState, formData: FormData): Promise<FormState> {
-  const validatedFields = situationSchema.safeParse({
-    situation: formData.get('situation'),
-    language: formData.get('language'),
-  });
+export async function handleGenerateVocabulary(input: GenerateVocabularyInput): Promise<VocabularyState> {
+  const validatedFields = GenerateVocabularyInputSchema.safeParse(input);
 
   if (!validatedFields.success) {
-    return {
-      error: validatedFields.error.flatten().fieldErrors,
-    };
+    return { error: 'Invalid input.' };
   }
-  
-  const { situation, language } = validatedFields.data;
 
   try {
-    const input: GenerateVocabularyInput = {
-      situation,
-      targetLanguage: language,
-      numResults: 10,
-    };
-    const result = await generateVocabulary(input);
+    const result = await generateVocabulary(validatedFields.data);
     return { data: result };
   } catch (error) {
     console.error(error);
@@ -43,7 +27,7 @@ export async function handleGenerateVocabulary(prevState: FormState, formData: F
   }
 }
 
-export async function handleRegenerateVocabulary(input: RegenerateVocabularyInput): Promise<FormState> {
+export async function handleRegenerateVocabulary(input: RegenerateVocabularyInput): Promise<VocabularyState> {
     try {
         const result: RegenerateVocabularyOutput = await regenerateVocabulary(input);
         return { data: result };
@@ -64,5 +48,20 @@ export async function handleGenerateQuiz(input: GenerateQuizInput): Promise<Quiz
     } catch (error) {
         console.error(error);
         return { error: 'Failed to generate quiz. Please try again.' };
+    }
+}
+
+type TitleState = {
+    data?: GenerateTitleOutput;
+    error?: any;
+}
+
+export async function handleGenerateTitle(input: GenerateTitleInput): Promise<TitleState> {
+    try {
+        const result = await generateTitle(input);
+        return { data: result };
+    } catch (error) {
+        console.error(error);
+        return { error: 'Failed to generate title.' };
     }
 }

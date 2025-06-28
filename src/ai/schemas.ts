@@ -58,3 +58,15 @@ export const GenerateQuizOutputSchema = z.object({
   questions: z.array(QuizQuestionSchema),
 });
 export type GenerateQuizOutput = z.infer<typeof GenerateQuizOutputSchema>;
+
+// Generate Title Flow
+export const GenerateTitleInputSchema = z.object({
+  situation: z.string().describe("The real-world situation."),
+  language: z.string().describe("The target language."),
+});
+export type GenerateTitleInput = z.infer<typeof GenerateTitleInputSchema>;
+
+export const GenerateTitleOutputSchema = z.object({
+    title: z.string().describe('A creative title for the learning session.'),
+});
+export type GenerateTitleOutput = z.infer<typeof GenerateTitleOutputSchema>;
