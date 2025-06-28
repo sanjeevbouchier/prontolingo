@@ -19,13 +19,17 @@ function createWindow () {
     // Open the DevTools.
     mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.loadURL(
-      url.format({
-        pathname: path.join(__dirname, 'out/index.html'), // 'out' is the default export directory for Next.js
-        protocol: 'file:',
-        slashes: true
-      })
-    )
+    // Path when packaged (recommended way)
+    const packagedPath = path.join(app.getAppPath(), 'out/index.html');
+    // Fallback for some environments or if asar is unpacked (less common for 'out' dir)
+    const devPath = path.join(__dirname, 'out/index.html');
+
+    const startUrl = url.format({
+      pathname: app.isPackaged ? packagedPath : devPath,
+      protocol: 'file:',
+      slashes: true,
+    });
+    mainWindow.loadURL(startUrl);
   }
 }
 
