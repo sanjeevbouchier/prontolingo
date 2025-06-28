@@ -1,0 +1,27 @@
+appId: com.example.nextron
+productName: Nextron App
+directories:
+  output: dist
+  buildResources: build
+files:
+  - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+  - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+  - "!**/node_modules/*.d.ts"
+  - "!**/node_modules/.bin"
+  - "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
+  - "!.editorconfig"
+  - "!**/._*"
+  - "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}"
+  - "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.project,.cache,.history,.settings,node_modules}"
+  - "!**/.vscode"
+  - "!**/.next" # Exclude the .next development folder
+  - "out/**/*" # Include the exported Next.js static files
+  - "main.js"
+  - "package.json"
+linux:
+  target: AppImage
+win:
+  target: nsis
+mac:
+  target: dmg
+  artifactName: "${productName}-${version}.${ext}"
