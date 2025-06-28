@@ -77,7 +77,7 @@ export function Quiz({ questions, onRegenerate }: QuizProps) {
     <Card className="w-full bg-secondary/50 border-none shadow-inner">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle className="text-2xl font-headline">Practice Quiz</CardTitle>
+          <CardTitle className="text-2xl font-headline">Practice Situations</CardTitle>
           <Button variant="ghost" size="icon" onClick={handleRestart}>
             <RefreshCw className="h-5 w-5" />
             <span className="sr-only">Regenerate Quiz</span>
@@ -96,8 +96,9 @@ export function Quiz({ questions, onRegenerate }: QuizProps) {
         ) : (
           <div className="space-y-6">
             <div>
-                <p className="text-sm text-muted-foreground mb-1">Question {currentQuestionIndex + 1} of {questions.length}</p>
-                <p className="text-lg font-medium">What is the correct example for: <span className="font-bold text-primary">"{currentQuestion.question}"</span>?</p>
+                <p className="text-sm text-muted-foreground mb-1">Situation {currentQuestionIndex + 1} of {questions.length}</p>
+                <p className="text-lg font-medium mb-2">"{currentQuestion.situation}"</p>
+                <p className="text-muted-foreground">Choose the most appropriate response:</p>
             </div>
             
             <div className="space-y-3">

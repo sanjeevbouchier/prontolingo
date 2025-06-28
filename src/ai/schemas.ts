@@ -11,9 +11,9 @@ export const VocabularyItemSchema = z.object({
 export type VocabularyItem = z.infer<typeof VocabularyItemSchema>;
 
 export const QuizQuestionSchema = z.object({
-    question: z.string().describe('The word or phrase the user needs to find the example sentence for.'),
-    options: z.array(z.string()).length(4).describe('A list of four possible example sentences, one of which is correct.'),
-    correctAnswer: z.string().describe('The correct example sentence from the options list.'),
+    situation: z.string().describe('A short, real-life situation or question that a person might encounter, presented in English.'),
+    options: z.array(z.string()).length(4).describe('A list of four possible responses in the target language.'),
+    correctAnswer: z.string().describe('The correct response from the options list, appropriate for the situation.'),
 });
 export type QuizQuestion = z.infer<typeof QuizQuestionSchema>;
 

@@ -28,20 +28,22 @@ const prompt = ai.definePrompt({
     name: 'generateQuizPrompt',
     input: { schema: GenerateQuizInputSchema },
     output: { schema: GenerateQuizOutputSchema },
-    prompt: `You are a language learning assistant. Your task is to generate a multiple-choice quiz based on the provided vocabulary list.
+    prompt: `You are a language learning assistant. Your task is to generate a multiple-choice quiz that tests a user's ability to respond to real-life situations using the provided vocabulary.
 
-From the list of vocabulary words and phrases, create a quiz with up to {{{numQuestions}}} questions. If there aren't enough vocabulary items to create that many questions, create as many as you can.
+From the list of vocabulary, create a quiz with up to {{{numQuestions}}} questions. If there aren't enough vocabulary items to create that many questions, create as many as you can.
 
 Each quiz question must have:
-- A "question", which is a "wordPhrase" from the vocabulary list.
-- An array of 4 unique "options". The options MUST be "exampleSentence" values from the provided vocabulary. One option must be the correct sentence for the "question", and the other three must be distractors from *other* vocabulary items.
-- A "correctAnswer", which is the correct "exampleSentence" and must be one of the items in the "options" array.
+- A "situation": A short, real-life scenario or a question someone might ask. This situation should be in English and should relate to one of the vocabulary items. The situation should make it so that only one of the provided options is a logical response.
+- An array of 4 unique "options": These are potential responses in the target language.
+    - One option must be the correct response to the situation. This correct response should be the "exampleSentence" from the relevant vocabulary item.
+    - The other three options must be distractors, which should be "exampleSentence" values from *other* vocabulary items in the list.
+- A "correctAnswer": This must be the correct "exampleSentence" from the "options" array.
 
-Ensure the options are shuffled for each question. Do not use the same wordPhrase for more than one question.
+Ensure the options are shuffled for each question. Do not use the same vocabulary item for the correct answer in more than one question.
 
-Here is the vocabulary to use:
+Here is the vocabulary to use for generating the situations and responses:
 {{#each vocabulary}}
-- Word/Phrase: "{{this.wordPhrase}}" ({{this.translation}}) -> Example: "{{this.exampleSentence}}"
+- Word/Phrase: "{{this.wordPhrase}}" ({{this.translation}}) -> Example: "{{this.exampleSentence}}" (English: "{{this.exampleSentenceTranslation}}")
 {{/each}}
 
 Format your response as a JSON object compliant with the output schema.
